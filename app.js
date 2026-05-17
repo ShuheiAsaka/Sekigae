@@ -1261,9 +1261,12 @@ function render() {
   const names = getNames();
   const displayEmptySeats = getDisplayEmptySeats();
   const displayPermanentSeats = getDisplayPermanentSeats();
+  const isMobileLayout = window.matchMedia("(max-width: 620px)").matches;
 
   elements.seatGrid.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-  elements.seatGrid.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+  elements.seatGrid.style.gridTemplateRows = isMobileLayout
+    ? `repeat(${rows}, minmax(60px, auto))`
+    : `repeat(${rows}, minmax(0, 1fr))`;
   elements.seatGrid.replaceChildren();
 
   state.seats.forEach((name, index) => {
@@ -1614,8 +1617,10 @@ function syncMobileControls() {
   });
   if (mobileQuery.addEventListener) {
     mobileQuery.addEventListener("change", applyMode);
+    mobileQuery.addEventListener("change", render);
   } else {
     mobileQuery.addListener(applyMode);
+    mobileQuery.addListener(render);
   }
 }
 
