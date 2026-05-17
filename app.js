@@ -1,6 +1,7 @@
 const elements = {
   setupView: document.querySelector("#setupView"),
   appView: document.querySelector("#appView"),
+  mobileControls: document.querySelector(".mobile-controls"),
   basicSetupTab: document.querySelector("#basicSetupTab"),
   teacherSetupTab: document.querySelector("#teacherSetupTab"),
   setupTitleInput: document.querySelector("#setupTitleInput"),
@@ -1594,6 +1595,30 @@ elements.csvBtn.addEventListener("click", exportCsv);
 elements.printBtn.addEventListener("click", () => window.print());
 elements.confirmResultBtn.addEventListener("click", confirmCurrentResult);
 
+function syncMobileControls() {
+  if (!elements.mobileControls) return;
+  const mobileQuery = window.matchMedia("(max-width: 620px)");
+  const summary = elements.mobileControls.querySelector("summary");
+  const setCollapsed = (collapsed) => {
+    elements.mobileControls.classList.toggle("is-mobile-collapsed", collapsed);
+    if (summary) summary.textContent = collapsed ? "設定を開く" : "設定を閉じる";
+  };
+  const applyMode = () => {
+    setCollapsed(mobileQuery.matches);
+  };
+  applyMode();
+  summary?.addEventListener("click", (event) => {
+    if (!mobileQuery.matches) return;
+    event.preventDefault();
+    setCollapsed(!elements.mobileControls.classList.contains("is-mobile-collapsed"));
+  });
+  if (mobileQuery.addEventListener) {
+    mobileQuery.addEventListener("change", applyMode);
+  } else {
+    mobileQuery.addListener(applyMode);
+  }
+}
+
 function fitSetupToMembers() {
   const count = Math.max(1, state.members.length + state.emptySeats.size);
   const cols = Math.min(8, Math.max(4, Math.ceil(Math.sqrt(count * 1.25))));
@@ -1609,5 +1634,6 @@ if (!restoreData()) {
   setMembers(sampleNames);
   syncSetupNumbersToMain();
 }
+syncMobileControls();
 renderSetup();
 render();

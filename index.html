@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>席替えボード</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles.css?v=mobile-20260517" />
   </head>
   <body>
     <main class="setup-view is-hidden" id="setupView">
@@ -195,6 +195,8 @@
 
     <main class="app-shell" id="appView">
       <section class="control-panel" aria-label="席替え設定">
+        <details class="mobile-controls" open>
+          <summary>設定を開く</summary>
         <div class="brand-row">
           <div class="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 48 48" role="img">
@@ -262,6 +264,7 @@
           <button id="csvBtn" type="button">CSV</button>
           <button id="printBtn" type="button">印刷</button>
         </div>
+        </details>
       </section>
 
       <section class="workspace" aria-label="座席表">
@@ -339,6 +342,6 @@
       </form>
     </dialog>
 
-    <script src="./app.js"></script>
+    <script src="./app.js?v=mobile-20260517"></script>
   </body>
 </html>
