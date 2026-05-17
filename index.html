@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>席替えボード</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="setup-view is-hidden" id="setupView">
+      <section class="setup-hero">
+        <div class="brand-row">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" role="img">
+              <rect x="7" y="8" width="34" height="10" rx="3"></rect>
+              <rect x="7" y="24" width="14" height="16" rx="3"></rect>
+              <rect x="27" y="24" width="14" height="16" rx="3"></rect>
+            </svg>
+          </div>
+          <div>
+            <h1>初期設定</h1>
+            <p>クラスのメンバーと席のフォーメーションを整えてから、席替えを始めます。</p>
+          </div>
+        </div>
+      </section>
+
+      <nav class="setup-tabs" aria-label="設定タブ">
+        <button class="active" data-setup-tab="basic" type="button">初期設定</button>
+        <button data-setup-tab="teacher" type="button">先生用</button>
+      </nav>
+
+      <section class="setup-grid" id="basicSetupTab">
+        <div class="setup-panel">
+          <div class="setup-panel-header">
+            <div>
+              <span class="status-label">クラス</span>
+              <h2>基本情報</h2>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <label>
+              座席表タイトル
+              <input id="setupTitleInput" type="text" value="3年A組 席替え" />
+            </label>
+            <label>
+              前回の席替え結果
+              <select id="previousResultSelect"></select>
+            </label>
+          </div>
+          <div class="front-priority-inline">
+            <div class="setup-panel-header compact">
+              <div>
+                <span class="status-label">前方優先</span>
+                <h2>前列1・2列目</h2>
+              </div>
+            </div>
+            <p class="field-hint">固定席の次に優先して、選んだ人を前から1列目または2列目に配置します。</p>
+            <div id="frontPriorityButtons" class="member-buttons"></div>
+          </div>
+        </div>
+
+        <div class="setup-panel">
+          <div class="setup-panel-header">
+            <div>
+              <span class="status-label">フォーメーション</span>
+              <h2>席の形</h2>
+            </div>
+            <strong id="setupSeatSummary">30席</strong>
+          </div>
+          <div class="settings-grid">
+            <label>
+              行
+              <input id="setupRowCount" type="number" min="1" max="10" value="5" />
+            </label>
+            <label>
+              列
+              <input id="setupColCount" type="number" min="1" max="12" value="6" />
+            </label>
+            <label>
+              編集モード
+              <div class="segmented-control" aria-label="フォーメーション編集モード">
+                <button class="active" data-formation-mode="empty" type="button">空席</button>
+              </div>
+            </label>
+            <label>
+              自動調整
+              <button id="setupFitBtn" type="button">人数に合わせる</button>
+            </label>
+          </div>
+          <div class="formation-tools">
+            <button id="clearEmptySeatsBtn" class="ghost" type="button">空席を解除</button>
+          </div>
+          <div id="formationPreview" class="formation-preview" aria-label="席のフォーメーションプレビュー"></div>
+        </div>
+
+        <div class="setup-panel member-maintenance">
+          <div class="setup-panel-header">
+            <div>
+              <span class="status-label">名簿</span>
+              <h2>メンバー管理</h2>
+            </div>
+            <strong id="memberCountLabel">0人</strong>
+          </div>
+          <div class="member-add-row">
+            <input id="memberNameInput" type="text" placeholder="名前を追加" />
+            <button id="addMemberBtn" type="button">追加</button>
+          </div>
+          <div class="inline-actions">
+            <button id="setupSampleBtn" class="ghost" type="button">サンプル</button>
+            <button id="setupClearMembersBtn" class="ghost" type="button">全員削除</button>
+          </div>
+          <div id="memberList" class="member-list"></div>
+          <details class="bulk-edit">
+            <summary>まとめて編集</summary>
+            <textarea id="setupStudentNames" spellcheck="false"></textarea>
+            <button id="applyBulkMembersBtn" type="button">名簿に反映</button>
+          </details>
+        </div>
+
+      </section>
+
+      <section class="setup-grid is-hidden" id="teacherSetupTab">
+        <div class="setup-panel secret-condition-panel">
+          <div class="setup-panel-header">
+            <div>
+              <span class="status-label">先生用</span>
+              <h2>条件設定</h2>
+            </div>
+            <strong>非表示</strong>
+          </div>
+          <p class="field-hint">ここで設定した条件は席替えに反映されますが、結果表示画面には表示されません。</p>
+          <div class="danger-zone">
+            <div>
+              <strong>保存データ消去</strong>
+              <span>ブラウザ内に保存された名簿、条件、履歴、パスワードを消去します。</span>
+            </div>
+            <button id="resetSavedDataBtn" class="danger-button" type="button">localStorageを消去</button>
+          </div>
+          <div class="portable-data-panel">
+            <div>
+              <strong>保存データ移行</strong>
+              <span>JSONファイルとして保存し、別の端末で読み込めます。</span>
+            </div>
+            <div class="portable-actions">
+              <button id="exportDataBtn" type="button">保存データをダウンロード</button>
+              <label class="file-import-button">
+                保存データを読み込む
+                <input id="importDataInput" type="file" accept="application/json,.json" />
+              </label>
+            </div>
+          </div>
+          <div class="teacher-settings-grid">
+            <div class="teacher-fixed-area">
+              <div class="permanent-seat-tools">
+                <label>
+                  固定する人
+                  <select id="permanentMemberSelect"></select>
+                </label>
+                <button id="clearPermanentSeatsBtn" class="ghost" type="button">固定席を解除</button>
+              </div>
+              <p class="field-hint">固定する人を選び、下の座席表で固定したい席をクリックします。</p>
+              <div id="permanentSeatPreview" class="formation-preview permanent-seat-preview" aria-label="固定席指定用の座席表"></div>
+            </div>
+            <div class="constraint-body setup-constraint-body">
+              <div class="condition-card">
+                <div>
+                  <strong>この人は前1列目</strong>
+                  <span id="frontRowSummary" class="condition-summary">未設定</span>
+                </div>
+                <button class="ghost" data-condition="frontRow" type="button">選択</button>
+              </div>
+              <div class="condition-card">
+                <div>
+                  <strong>前1、2列のどこか</strong>
+                  <span id="frontTwoRowsSummary" class="condition-summary">未設定</span>
+                </div>
+                <button class="ghost" data-condition="frontTwoRows" type="button">選択</button>
+              </div>
+              <div class="condition-card">
+                <div>
+                  <strong>前後左右で隣り合わない</strong>
+                  <span id="avoidAdjacentSummary" class="condition-summary">未設定</span>
+                </div>
+                <button class="ghost" data-condition="avoidAdjacent" type="button">グループ作成</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="setup-footer">
+        <button id="saveSetupBtn" class="primary" type="button">決定</button>
+      </div>
+    </main>
+
+    <main class="app-shell" id="appView">
+      <section class="control-panel" aria-label="席替え設定">
+        <div class="brand-row">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" role="img">
+              <rect x="7" y="8" width="34" height="10" rx="3"></rect>
+              <rect x="7" y="24" width="14" height="16" rx="3"></rect>
+              <rect x="27" y="24" width="14" height="16" rx="3"></rect>
+            </svg>
+          </div>
+          <div>
+            <h1>席替えボード</h1>
+            <p>名簿から座席表を作成し、楽しくシャッフルできます。</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="studentNames">名簿</label>
+          <textarea id="studentNames" spellcheck="false"></textarea>
+          <div class="inline-actions">
+            <button id="openSetupBtn" class="ghost" type="button">
+              <span class="icon">⚙</span> 初期設定
+            </button>
+            <button id="sampleBtn" class="ghost" type="button">
+              <span class="icon">＋</span> サンプル
+            </button>
+            <button id="clearBtn" class="ghost" type="button">
+              <span class="icon">×</span> 消去
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <label>
+            行
+            <input id="rowCount" type="number" min="1" max="10" value="5" />
+          </label>
+          <label>
+            列
+            <input id="colCount" type="number" min="1" max="12" value="6" />
+          </label>
+          <label>
+            空席
+            <input id="emptyCount" type="text" value="0席" readonly />
+          </label>
+        </div>
+
+        <div class="field-group">
+          <label for="titleInput">座席表タイトル</label>
+          <input id="titleInput" type="text" value="3年A組 席替え" />
+        </div>
+
+        <div class="toggle-row">
+          <label>
+            <input id="animateShuffle" type="checkbox" checked />
+            シャッフル演出
+          </label>
+          <label class="volume-control">
+            音量
+            <input id="soundVolume" type="range" min="0" max="100" value="45" />
+          </label>
+        </div>
+
+        <div class="export-actions" aria-label="出力">
+          <button id="pngBtn" type="button">PNG</button>
+          <button id="svgBtn" type="button">SVG</button>
+          <button id="csvBtn" type="button">CSV</button>
+          <button id="printBtn" type="button">印刷</button>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="座席表">
+        <div id="slideArea" class="slide-area">
+          <div id="shuffleOverlay" class="shuffle-overlay" aria-hidden="true">
+            <div class="shuffle-orbit">
+              <span>Shuffle</span>
+              <i></i>
+              <i></i>
+              <i></i>
+            </div>
+          </div>
+          <header class="slide-header">
+            <div>
+              <p class="slide-kicker">Seat Shuffle Board</p>
+              <h2 id="slideTitle">3年A組 席替え</h2>
+            </div>
+            <div id="dateLabel" class="date-label"></div>
+          </header>
+          <div class="blackboard">黒板</div>
+          <div id="seatGrid" class="seat-grid" aria-live="polite"></div>
+          <footer class="slide-footer">
+            <span></span>
+            <span id="countLabel">0人</span>
+          </footer>
+        </div>
+        <div class="result-actions">
+          <button id="startShuffleBtn" class="primary" type="button">
+            <span class="icon">▶</span> スタート
+          </button>
+          <button id="confirmResultBtn" type="button">この結果を確定して保存</button>
+        </div>
+        <section class="saved-results-panel" aria-label="保存した席替え結果">
+          <div class="saved-results-header">
+            <div>
+              <span class="status-label">保存済み</span>
+              <strong>席替え履歴</strong>
+            </div>
+            <span id="savedResultsCount">0件</span>
+          </div>
+          <div id="savedResultsList" class="saved-results-list"></div>
+        </section>
+      </section>
+    </main>
+
+    <template id="seatTemplate">
+      <button class="seat" type="button" draggable="true">
+        <span class="seat-number"></span>
+        <span class="seat-name"></span>
+        <span class="lock-mark" aria-hidden="true">●</span>
+      </button>
+    </template>
+
+    <dialog id="conditionDialog" class="condition-dialog">
+      <form method="dialog" class="condition-dialog-panel">
+        <header>
+          <div>
+            <p class="dialog-kicker">Condition</p>
+            <h3 id="dialogTitle">条件設定</h3>
+          </div>
+          <button id="dialogCloseBtn" class="icon-button" value="cancel" type="submit" aria-label="閉じる">×</button>
+        </header>
+        <p id="dialogHint" class="dialog-hint"></p>
+        <div id="selectedPreview" class="selected-preview"></div>
+        <div id="memberButtons" class="member-buttons"></div>
+        <div id="groupActions" class="group-actions">
+          <button id="addGroupBtn" type="button">追加</button>
+          <button id="clearSelectionBtn" class="ghost" type="button">選択解除</button>
+        </div>
+        <div id="groupList" class="group-list"></div>
+        <footer>
+          <button id="clearConditionBtn" class="ghost" type="button">この条件を消去</button>
+          <button id="saveConditionBtn" class="primary" value="default" type="submit">保存</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
