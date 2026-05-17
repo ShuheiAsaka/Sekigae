@@ -1129,6 +1129,28 @@ select {
   }
 }
 
+@keyframes mobile-seat-tumble {
+  0%,
+  100% {
+    transform: none;
+  }
+  45% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes mobile-reveal-seat {
+  0% {
+    opacity: 0;
+    transform: none;
+    border-color: var(--gold);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -1314,15 +1336,23 @@ select {
   }
 
   .seat-grid {
-    gap: 5px;
+    gap: 8px;
     grid-template-rows: none !important;
   }
 
   .seat {
     grid-template-rows: auto minmax(28px, auto);
-    min-height: 56px;
+    min-height: 60px;
     padding: 5px;
     border-radius: 6px;
+  }
+
+  .is-shuffling .seat:not(.locked) {
+    animation-name: mobile-seat-tumble;
+  }
+
+  .shuffle-reveal .seat:not(.empty) {
+    animation-name: mobile-reveal-seat;
   }
 
   .seat-number {
